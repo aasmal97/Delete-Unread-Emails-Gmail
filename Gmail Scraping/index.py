@@ -68,7 +68,6 @@ def emailPageActions():
             print("no items to delete here")
 
 #move on to next page in inbox
-#declaring this earlier causes stale and interactivable elements to occur
 def nextPage(buttonType, btnPath):
     try:
         buttonType = WebDriverWait(driver, 2).until(
