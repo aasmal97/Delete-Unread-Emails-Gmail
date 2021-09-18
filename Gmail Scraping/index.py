@@ -8,13 +8,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import ElementNotInteractableException, ElementNotSelectableException, StaleElementReferenceException
-
 #to use this, add a cred.py file to project directorywith variable password 
 from cred import password
 def signIn():
     #user is given 40 sec to manually type in username and click next
     time.sleep(40)
-    # to use this script for professional emails (i.e cornell.edu, job.com, etc)
+    # to use this script for organization emails (i.e cornell.edu, job.com, etc)
     # comment the bottom 4 lines out and manually input both username and password
     # passWordBox = driver.find_element_by_xpath(
     #     '//*[@id ="password"]/div[1]/div / div[1]/input')
@@ -25,8 +24,8 @@ def signIn():
 def emailPageActions():
         #click on check box
         try :
-            #depending on computer speed, increase or decrease this time variable
-            # to avoid errors
+            #depending on computer/internet speed, increase or decrease 
+            # this time variableto avoid errors
             time.sleep(6)
             dropdownbtn = driver.find_element_by_xpath("//*[@aria-label='Select']/div/div[@aria-hidden='true']")
             dropdownbtn.click()
@@ -136,10 +135,17 @@ while not seeOlderMess.get_attribute("aria-disabled"):
     )
     nextPage(seeOlderMess,"//*[@aria-label='Older']")
     #avoid stale element error (meaning element position has changed since last assigned)
-    seeOlderMess = driver.find_element_by_xpath("//*[@aria-label='Older']")
+    try:
+        seeOlderMess = driver.find_elements_by_xpath("//*[@aria-label='Older']")[1]
+    except IndexError:
+        seeOlderMess = driver.find_element_by_xpath("//*[@aria-label='Older']")
 
+time.sleep(1)
 #loop back to start
-seeRecentMess = driver.find_element_by_xpath("//*[@aria-label='Newer']")
+try:
+    seeRecentMess = driver.find_elements_by_xpath("//*[@aria-label='Newer']")[1]
+except IndexError: 
+    seeRecentMess = driver.find_element_by_xpath("//*[@aria-label='Newer']")
 while not seeRecentMess.get_attribute("aria-disabled"):
     emailPageActions()
     #avoid stale element error (meaning element position has changed since last assigned)
@@ -148,4 +154,7 @@ while not seeRecentMess.get_attribute("aria-disabled"):
     )
     nextPage(seeRecentMess, "//*[@aria-label='Newer']")
     #avoid stale element error (meaning element position has changed since last assigned)
-    seeRecentMess = driver.find_element_by_xpath("//*[@aria-label='Newer']")
+    try:
+        seeRecentMess = driver.find_elements_by_xpath("//*[@aria-label='Newer']")[1]
+    except IndexError: 
+        seeRecentMess = driver.find_element_by_xpath("//*[@aria-label='Newer']")
