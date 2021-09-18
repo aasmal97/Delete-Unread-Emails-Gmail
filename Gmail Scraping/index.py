@@ -7,54 +7,90 @@ from selenium_stealth import stealth
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import ElementNotInteractableException, ElementNotSelectableException, StaleElementReferenceException
 
 #to use this, add a cred.py file to project directorywith variable password 
 from cred import password
 def signIn():
     #user is given 40 sec to manually type in username and click next
     time.sleep(40)
-    passWordBox = driver.find_element_by_xpath(
-        '//*[@id ="password"]/div[1]/div / div[1]/input')
-    passWordBox.send_keys(password)
-    nextBtn =  driver.find_element_by_xpath('//*[@id ="passwordNext"]')
-    nextBtn.click()
+    # to use this script for professional emails (i.e cornell.edu, job.com, etc)
+    # comment the bottom 4 lines out and manually input both username and password
+    # passWordBox = driver.find_element_by_xpath(
+    #     '//*[@id ="password"]/div[1]/div / div[1]/input')
+    # passWordBox.send_keys(password)
+    # nextBtn =  driver.find_element_by_xpath('//*[@id ="passwordNext"]')
+    # nextBtn.click()
 
 def emailPageActions():
         #click on check box
-        dropdownbtn = WebDriverWait(driver, 3).until(
-            EC.presence_of_element_located((By.XPATH, "//*[@aria-label='Select']/div/div[@aria-hidden='true']"))
-        )
-        dropdownbtn.click()
-        driver.implicitly_wait(1)
-        #choose unread option
-        unreadOption = driver.find_element_by_xpath("//*[@selector='unread']")
-        unreadOption.click()
+        try :
+            #depending on computer speed, increase or decrease this time variable
+            # to avoid errors
+            time.sleep(6)
+            dropdownbtn = driver.find_element_by_xpath("//*[@aria-label='Select']/div/div[@aria-hidden='true']")
+            dropdownbtn.click()
+        except ElementNotSelectableException: 
+            dropdownbtn = driver.find_elements_by_xpath("//*[@aria-label='Select']/div/div[@aria-hidden='true']")[1]
+            dropdownbtn.click()
+        except ElementNotInteractableException:
+            dropdownbtn = driver.find_elements_by_xpath("//*[@aria-label='Select']/div/div[@aria-hidden='true']")[1]
+            dropdownbtn.click()
 
+        #choose unread option
+        try: 
+            unreadOption = driver.find_element_by_xpath("//*[@selector='unread']")
+            unreadOption.click()
+        except ElementNotSelectableException: 
+            unreadOption = driver.find_elements_by_xpath("//*[@selector='unread']")[1]
+            unreadOption.click()
+        except ElementNotInteractableException:
+            unreadOption = driver.find_elements_by_xpath("//*[@selector='unread']")[1]
+            unreadOption.click()
+        #choose trash can to remove all unread emails
         try:
             trashBtn = WebDriverWait(driver, 2).until(
                 EC.presence_of_element_located((By.XPATH, "//*[@aria-label='Delete']"))
             )
-            #choose trash can to remove all unread emails
             try:
-                time.sleep(2)
                 trashBtn.click()
-            except:
+            except StaleElementReferenceException:
                 trashBtn = WebDriverWait(driver, 2).until(
-                    EC.presence_of_element_located((By.XPATH, "//*[@aria-label='Delete']")).click()
+                     EC.presence_of_element_located((By.XPATH, "//*[@aria-label='Delete']"))
                 )
+                trashBtn.click()
+            except ElementNotSelectableException:
+                trashBtn = driver.find_elements_by_xpath("//*[@aria-label='Delete']")[1]
+                trashBtn.click()
+            except ElementNotInteractableException:
+                trashBtn = driver.find_elements_by_xpath("//*[@aria-label='Delete']")[1]
+                trashBtn.click()
         except:
             print("no items to delete here")
 
 #move on to next page in inbox
+#declaring this earlier causes stale and interactivable elements to occur
 def nextPage(buttonType, btnPath):
     try:
-        buttonType.click()
-    except:
         buttonType = WebDriverWait(driver, 2).until(
             EC.presence_of_element_located((By.XPATH, btnPath))
         )
         buttonType.click()
-    driver.implicitly_wait(30)
+    except StaleElementReferenceException:
+        try: 
+            buttonType = WebDriverWait(driver, 2).until(
+                EC.presence_of_element_located((By.XPATH, btnPath))
+                )
+            buttonType.click()
+        except ElementNotInteractableException:
+            buttonType = driver.find_elements_by_xpath(btnPath)[1]
+            buttonType.click()
+    except ElementNotSelectableException:
+        buttonType = driver.find_elements_by_xpath(btnPath)[1]
+        buttonType.click()
+    except ElementNotInteractableException:
+        buttonType = driver.find_elements_by_xpath(btnPath)[1]
+        buttonType.click()
 
 #setup to avoid bot detection and grab driver (the automated tool)
 os.environ['PATH'] +=  os.pathsep + r"C:/chromeDriver"
@@ -90,7 +126,7 @@ if(signInBtn):
     signIn()
 
 #loop to the end of email inbox
-driver.implicitly_wait(30)
+time.sleep(2)
 seeOlderMess = driver.find_element_by_xpath("//*[@aria-label='Older']")
 while not seeOlderMess.get_attribute("aria-disabled"):
     emailPageActions()
@@ -98,12 +134,11 @@ while not seeOlderMess.get_attribute("aria-disabled"):
     seeOlderMess = WebDriverWait(driver, 2).until(
         EC.presence_of_element_located((By.XPATH, "//*[@aria-label='Older']"))
     )
-    nextPage(seeOlderMess, "//*[@aria-label='Older']")
+    nextPage(seeOlderMess,"//*[@aria-label='Older']")
     #avoid stale element error (meaning element position has changed since last assigned)
     seeOlderMess = driver.find_element_by_xpath("//*[@aria-label='Older']")
 
 #loop back to start
-driver.implicitly_wait(30)
 seeRecentMess = driver.find_element_by_xpath("//*[@aria-label='Newer']")
 while not seeRecentMess.get_attribute("aria-disabled"):
     emailPageActions()
