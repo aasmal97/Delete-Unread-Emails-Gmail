@@ -30,7 +30,7 @@ Currently, Gmail is limited to deleting 50 emails per cycle, which is incredibly
     
 * ### Optional: 
      * Set up a virtual environment in project directory
-           * Run ```py -m venv virtual ``` from terminal
+         * Run ```py -m venv virtual ``` from terminal
 
 # Installing necessary modules
 * Run ```pip install -r requirements.txt ``` in project directory, using the terminal (if not using virtual environment)
