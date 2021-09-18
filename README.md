@@ -48,6 +48,19 @@ Currently, Gmail is limited to deleting 50 emails per cycle, which is incredibly
 ## Important Notices: 
 1. This program REQUIRES you to manually input your username/email, and click the next button.
       * This is due to Google's incredibly tough and secure bot detection algorithms. If this were completely automated, the user would be unable to sign into their account due to secruity risks. However, after manually entering your username/email and clicking next, everything from inputting your password to deletion of emails, is completely automated
+      * If you are trying to enter an organization email (i.e cornell.edu, etc) you need to remove the code that automates entering a password. Below is the code that needs to be removed:
+    ``` 
+    def signIn():
+          #user is given 40 sec to manually type in username and click next
+          time.sleep(40)
+          # to use this script for organization emails (i.e cornell.edu, job.com, etc)
+          # comment the bottom 4 lines out and manually input both username and password
+          passWordBox = driver.find_element_by_xpath(
+              '//*[@id ="password"]/div[1]/div / div[1]/input')
+          passWordBox.send_keys(password)
+          nextBtn =  driver.find_element_by_xpath('//*[@id ="passwordNext"]')
+          nextBtn.click() 
+    ```
       * You are given 40 seconds to manually input this information, but its duration can be increased in the index.py file.
 2. This code runs optimally on Google Chrome version 93.0.4577.82, as of Sept 18th, 2021. 
       * If run on a different verison, setup portion of code may need adjustments   
