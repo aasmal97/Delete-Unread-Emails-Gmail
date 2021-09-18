@@ -1,12 +1,9 @@
 # Delete-Unread-Emails-Gmail
 Currently, Gmail is limited to deleting 50 emails per cycle, which is incredibly tedious for someone who harbors +1000 unread email messages. This program is meant to automate this process. 
 
-# Program Efficieny 
+# Program Efficiency 
 * Overview: 
     * Deletes 90% of unread messages on its first run, and 99.99% on its second one. 
-   
-* Time and Space Complexity 
-    * O(n) Time, O(1) Space
     
 # Prerequisites
 * ###  Python 3.9.5 installed on machine
