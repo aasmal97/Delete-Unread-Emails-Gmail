@@ -15,11 +15,11 @@ def signIn():
     time.sleep(40)
     # to use this script for organization emails (i.e cornell.edu, job.com, etc)
     # comment the bottom 4 lines out and manually input both username and password
-    # passWordBox = driver.find_element_by_xpath(
-    #     '//*[@id ="password"]/div[1]/div / div[1]/input')
-    # passWordBox.send_keys(password)
-    # nextBtn =  driver.find_element_by_xpath('//*[@id ="passwordNext"]')
-    # nextBtn.click()
+    passWordBox = driver.find_element_by_xpath(
+        '//*[@id ="password"]/div[1]/div / div[1]/input')
+    passWordBox.send_keys(password)
+    nextBtn =  driver.find_element_by_xpath('//*[@id ="passwordNext"]')
+    nextBtn.click()
 
 def emailPageActions():
         #click on check box
