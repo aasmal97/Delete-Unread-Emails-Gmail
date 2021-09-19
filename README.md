@@ -4,7 +4,8 @@ Currently, Gmail is limited to deleting 50 emails per cycle, which is incredibly
 # Program Efficiency 
 * Overview: 
     * Deletes 95% of unread messages on its first run, and 100% on its second one. 
-    
+    * It will take an average of 5 seconds to evaluate and delete every 50 emails. 
+         * This a limitation determined by Gmail, because the program MUST wait for the emails to load, in order to delete them. If you have a fast internet connection, you may be able to run the program faster than this.
 # Prerequisites
 * ###  Python 3.9.5 installed on machine
 * ###  An IDE (Ex. Visual Studio Code) installed on machine
