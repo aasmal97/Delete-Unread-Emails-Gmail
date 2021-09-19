@@ -8,7 +8,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import ElementNotInteractableException, ElementNotSelectableException, StaleElementReferenceException
-#to use this, add a cred.py file to project directorywith variable password 
+#to use this, add a cred.py file to project directory with variable password 
 from cred import password
 def signIn():
     #user is given 40 sec to manually type in username and click next
@@ -20,75 +20,66 @@ def signIn():
     passWordBox.send_keys(password)
     nextBtn =  driver.find_element_by_xpath('//*[@id ="passwordNext"]')
     nextBtn.click()
+#this function handles all common exceptions
+def handle_exceptions(element, elementPath):
+        try :
+            element = driver.find_element_by_xpath(elementPath)
+            element.click()
+        except ElementNotSelectableException: 
+            element = driver.find_elements_by_xpath(elementPath)[1]
+            element.click()
+        except ElementNotInteractableException:
+            try:
+                element = driver.find_elements_by_xpath(elementPath)[1]
+                element.click()
+            except IndexError:
+                #means were inside a personal account, so if the first instance of trash can
+                #is not interactable, there are no items to delete
+                print("No items To Delete")
+            except ElementNotInteractableException:
+                #means were inside a org account, so if the second instance of trash can is
+                #not interactable, there are no items to delete
+                print("No items To Delete")
+        except StaleElementReferenceException:
+            try:
+                element = WebDriverWait(driver, 2).until(
+                    EC.presence_of_element_located((By.XPATH, elementPath))
+                )
+            except ElementNotInteractableException:
+                element = driver.find_elements_by_xpath(elementPath)[1]
+                element.click()
 
 def emailPageActions():
+        #depending on computer/internet speed, increase or decrease 
+        # this time variable to avoid errors
+        time.sleep(5)
         #click on check box
-        try :
-            #depending on computer/internet speed, increase or decrease 
-            # this time variableto avoid errors
-            time.sleep(6)
-            dropdownbtn = driver.find_element_by_xpath("//*[@aria-label='Select']/div/div[@aria-hidden='true']")
-            dropdownbtn.click()
-        except ElementNotSelectableException: 
-            dropdownbtn = driver.find_elements_by_xpath("//*[@aria-label='Select']/div/div[@aria-hidden='true']")[1]
-            dropdownbtn.click()
-        except ElementNotInteractableException:
-            dropdownbtn = driver.find_elements_by_xpath("//*[@aria-label='Select']/div/div[@aria-hidden='true']")[1]
-            dropdownbtn.click()
+        dropdownBtn = True
+        handle_exceptions(dropdownBtn, "//*[@aria-label='Select']/div/div[@aria-hidden='true']")
 
         #choose unread option
-        try: 
-            unreadOption = driver.find_element_by_xpath("//*[@selector='unread']")
-            unreadOption.click()
-        except ElementNotSelectableException: 
-            unreadOption = driver.find_elements_by_xpath("//*[@selector='unread']")[1]
-            unreadOption.click()
-        except ElementNotInteractableException:
-            unreadOption = driver.find_elements_by_xpath("//*[@selector='unread']")[1]
-            unreadOption.click()
+        unreadOption = True
+        handle_exceptions(unreadOption, "//*[@selector='unread']")
+
         #choose trash can to remove all unread emails
-        try:
-            trashBtn = WebDriverWait(driver, 2).until(
-                EC.presence_of_element_located((By.XPATH, "//*[@aria-label='Delete']"))
-            )
-            try:
-                trashBtn.click()
-            except StaleElementReferenceException:
-                trashBtn = WebDriverWait(driver, 2).until(
-                     EC.presence_of_element_located((By.XPATH, "//*[@aria-label='Delete']"))
-                )
-                trashBtn.click()
-            except ElementNotSelectableException:
-                trashBtn = driver.find_elements_by_xpath("//*[@aria-label='Delete']")[1]
-                trashBtn.click()
-            except ElementNotInteractableException:
-                trashBtn = driver.find_elements_by_xpath("//*[@aria-label='Delete']")[1]
-                trashBtn.click()
-        except:
-            print("no items to delete here")
+        trashBtn = True
+        time.sleep(1)
+        handle_exceptions(trashBtn, "//*[@aria-label='Delete']")
 
 #move on to next page in inbox
 def nextPage(buttonType, btnPath):
-    try:
-        buttonType = WebDriverWait(driver, 2).until(
-            EC.presence_of_element_located((By.XPATH, btnPath))
-        )
-        buttonType.click()
-    except StaleElementReferenceException:
-        try: 
-            buttonType = WebDriverWait(driver, 2).until(
-                EC.presence_of_element_located((By.XPATH, btnPath))
-                )
-            buttonType.click()
-        except ElementNotInteractableException:
-            buttonType = driver.find_elements_by_xpath(btnPath)[1]
-            buttonType.click()
-    except ElementNotSelectableException:
-        buttonType = driver.find_elements_by_xpath(btnPath)[1]
-        buttonType.click()
-    except ElementNotInteractableException:
-        buttonType = driver.find_elements_by_xpath(btnPath)[1]
-        buttonType.click()
+    time.sleep(0.5)
+    handle_exceptions(buttonType, btnPath)
+
+def loop_direction(btn_Direction, btn_Path):
+    while not btn_Direction.get_attribute("aria-disabled"):
+        emailPageActions()
+        nextPage(btn_Direction, btn_Path)
+        #avoid stale element error (meaning element position has changed since last assigned)
+        try:
+            btn_Direction = driver.find_elements_by_xpath(btn_Path)[1]
+        except IndexError: 
+            btn_Direction = driver.find_element_by_xpath(btn_Path)
 
 #setup to avoid bot detection and grab driver (the automated tool)
 os.environ['PATH'] +=  os.pathsep + r"C:/chromeDriver"
@@ -110,7 +101,7 @@ stealth(driver,
 #for randomizing numbers
 seed(1)
 
-#this allows us to naviagte from google to gmail login/or gmail inbox
+#naviagte from google to gmail login/or gmail inbox
 driver.get("https://www.google.com/")
 gmailBtn = driver.find_element_by_link_text("Gmail")
 gmailBtn.click()
@@ -126,34 +117,12 @@ if(signInBtn):
 #loop to the end of email inbox
 time.sleep(2)
 seeOlderMess = driver.find_element_by_xpath("//*[@aria-label='Older']")
-while not seeOlderMess.get_attribute("aria-disabled"):
-    emailPageActions()
-    #avoid stale element error (meaning element position has changed since last assigned)
-    seeOlderMess = WebDriverWait(driver, 2).until(
-        EC.presence_of_element_located((By.XPATH, "//*[@aria-label='Older']"))
-    )
-    nextPage(seeOlderMess,"//*[@aria-label='Older']")
-    #avoid stale element error (meaning element position has changed since last assigned)
-    try:
-        seeOlderMess = driver.find_elements_by_xpath("//*[@aria-label='Older']")[1]
-    except IndexError:
-        seeOlderMess = driver.find_element_by_xpath("//*[@aria-label='Older']")
-
+loop_direction(seeOlderMess, "//*[@aria-label='Older']")
 time.sleep(1)
+
 #loop back to start
 try:
     seeRecentMess = driver.find_elements_by_xpath("//*[@aria-label='Newer']")[1]
 except IndexError: 
     seeRecentMess = driver.find_element_by_xpath("//*[@aria-label='Newer']")
-while not seeRecentMess.get_attribute("aria-disabled"):
-    emailPageActions()
-    #avoid stale element error (meaning element position has changed since last assigned)
-    seeRecentMess = WebDriverWait(driver, 2).until(
-        EC.presence_of_element_located((By.XPATH, "//*[@aria-label='Newer']"))
-    )
-    nextPage(seeRecentMess, "//*[@aria-label='Newer']")
-    #avoid stale element error (meaning element position has changed since last assigned)
-    try:
-        seeRecentMess = driver.find_elements_by_xpath("//*[@aria-label='Newer']")[1]
-    except IndexError: 
-        seeRecentMess = driver.find_element_by_xpath("//*[@aria-label='Newer']")
+loop_direction(seeRecentMess, "//*[@aria-label='Newer']")
