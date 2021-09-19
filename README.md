@@ -3,7 +3,7 @@ Currently, Gmail is limited to deleting 50 emails per cycle, which is incredibly
 
 # Program Efficiency 
 * Overview: 
-    * Deletes 90% of unread messages on its first run, and 99.99% on its second one. 
+    * Deletes 95% of unread messages on its first run, and 100% on its second one. 
     
 # Prerequisites
 * ###  Python 3.9.5 installed on machine
